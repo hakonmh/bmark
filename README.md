@@ -7,10 +7,10 @@ but can be used to benchmark any Python code.
 
 ## Installation
 
-Bmark is available on [PyPI](https://pypi.org/project/bmark/):
+Bmark is available on [PyPI](https://pypi.org/project/bmark-py/):
 
 ```console
-python -m pip install bmark
+python -m pip install bmark-py
 ```
 
 ## Basic usage

@@ -6,8 +6,8 @@ with open(os.path.join(current_folder, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='bmark',
-    version='0.0.1',
+    name='bmark-py',
+    version='0.0.2',
     description='Benchmarking tool',
     long_description=long_description,
     long_description_content_type='text/markdown',
