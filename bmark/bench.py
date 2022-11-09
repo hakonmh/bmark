@@ -1,5 +1,4 @@
 import abc
-from functools import partial
 import time
 import timeit
 from IPython.core.magics.execution import TimeitResult

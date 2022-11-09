@@ -16,8 +16,8 @@ def _read_log(path):
 
 
 def _plot_by_date(data):
-    pass
+    raise NotImplementedError
 
 
 def _plot_by_name(data):
-    pass
+    raise NotImplementedError
