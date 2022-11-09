@@ -30,7 +30,7 @@ class Benched(abc.ABC):
         pass
 
     def teardown(self):
-        """Teardown for the entire duration of the timer"""
+        """Final teardown after all the timings are done"""
         pass
 
 
