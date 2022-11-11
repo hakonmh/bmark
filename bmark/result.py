@@ -3,6 +3,7 @@ import os
 import json
 from prettytable import PrettyTable
 from IPython.core.magics.execution import _format_time
+from bmark.plot import plot_bar
 
 
 class BenchmarkResult:
@@ -11,6 +12,7 @@ class BenchmarkResult:
         self.timings = timings
         self._now = datetime.datetime.now()
         self._str = _BenchmarkResultString(header, timings, total_runtime)
+        self._header = header
 
     def keys(self):
         return [t.name for t in self.timings]
@@ -53,11 +55,8 @@ class BenchmarkResult:
                 f.write('\n')
 
     def plot(self):
-        """Plots horisontal barchart of timings sorted with the slowest on top
-
-        self._header is plot header, x-axis is self.values() ms, y-axis is self.keys()
-        """
-        raise NotImplementedError
+        """Plots a barchart of the items benchmarked"""
+        plot_bar(self._header, self.timings)
 
 
 class _BenchmarkResultString:

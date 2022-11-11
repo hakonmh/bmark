@@ -9,6 +9,7 @@ from bokeh import plotting
 from bokeh.models import ColumnDataSource, CrosshairTool, Span, HoverTool, Select
 from bokeh.layouts import column
 from bokeh.server.server import Server
+from bokeh.transform import dodge
 
 
 def plot_log(path):
@@ -110,6 +111,7 @@ def _make_fig(header):
                           y_axis_label='Benchmark result', y_axis_type="datetime",
                           x_range=(0, 0), y_range=(0, 0),  # Disable auto-ranging
                           )
+    fig.title.text_font_size = '14pt'
     plotting.curdoc().theme = 'dark_minimal'
     return fig
 
@@ -181,3 +183,28 @@ def _add_selector(fig, lines):
     selector = Select(title="Benchmarks", options=keys, value=keys[0], css_classes=['selector'])
     selector.on_change('value', callback)
     return selector
+
+
+def plot_bar(header, timings):
+    names = [t.name for t in timings]
+    worst = [t.worst * 10e2 for t in timings]
+    avg = [t.average * 10e2 for t in timings]
+    best = [t.best * 10e2 for t in timings]
+    source = ColumnDataSource(data=dict(names=names, best=best, avg=avg, worst=worst))
+
+    fig = plotting.figure(title=header, sizing_mode='stretch_width',
+                          x_axis_label='Results (lower is better)', x_axis_type="datetime",
+                          x_range=(0, max(worst) * 1.05), y_range=names)
+    fig.title.text_font_size = '14pt'
+    plotting.curdoc().theme = 'dark_minimal'
+    fig.ygrid.grid_line_color = None
+
+    fig.hbar(y=dodge('names', 0.3, range=fig.y_range), right='best', source=source,
+             height=0.25, color='#008400', alpha=1, legend_label='Best')
+    fig.hbar(y=dodge('names', 0, range=fig.y_range), right='avg', source=source,
+             height=0.25, color='#BB8B00', alpha=1, legend_label='Avg')
+    fig.hbar(y=dodge('names', -0.3, range=fig.y_range), right='worst', source=source,
+             height=0.25, color='#B40000', alpha=1, legend_label='Worst')
+
+    fig.legend.location = "bottom_right"
+    plotting.show(fig)
