@@ -1,6 +1,6 @@
 import datetime
 import os
-import pickle
+import json
 from prettytable import PrettyTable
 from IPython.core.magics.execution import _format_time
 
@@ -29,13 +29,28 @@ class BenchmarkResult:
         return str(self._str)
 
     def log(self, dir_path, tag=''):
-        # Log it as a pandas-like csv
-        # TODO: log version (by importing it from featherstore)
-        for name in self.timings:
-            # TODO: Remove unwanted chars from `name`
-            file_path = os.path.join(dir_path, name) + '.log'
-            with open(file_path, 'ab') as f:
-                pickle.dump((self._now, tag, self.timings[name]), f)
+        """Writes the benchmark results to logfiles.
+
+        Parameters
+        ----------
+        dir_path : str
+            Path to the directory you want to store the file
+        tag : str, optional
+            An optional tag for the benchmark result, like a version number or
+            similar, by default ''
+        """
+        for timing in self.timings:
+            file_path = os.path.join(dir_path, timing.name) + '.log'
+
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+            if not os.path.exists(file_path):
+                with open(file_path, 'w') as f:
+                    json.dump(('date', 'tag', 'timing'), f, default=str)
+                    f.write('\n')
+            with open(file_path, 'a') as f:
+                json.dump((self._now, tag, timing.best), f, default=str)
+                f.write('\n')
 
     def plot(self):
         """Plots horisontal barchart of timings sorted with the slowest on top

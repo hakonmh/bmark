@@ -29,6 +29,9 @@ setup(
     python_requires='>=3.5',
     packages=find_packages(exclude=['tests', 'dev']),
     install_requires=[
+        'pandas',
+        'ipython'
         'prettytable>=3.5.0',
+        'bokeh>=3.0.0',
     ],
 )

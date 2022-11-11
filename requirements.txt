@@ -1,1 +1,4 @@
 prettytable>=3.5.0
+ipython
+pandas
+bokeh>=3.0.0
