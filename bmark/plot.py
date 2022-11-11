@@ -117,19 +117,23 @@ def _make_fig(header):
 
 
 def _plot_shaded_line(fig, df):
+    _timing_formatted = df["timing"].apply(_format_time)
     plot_source = ColumnDataSource(data=dict(date=df.index,
                                              timing=df["timing"] * 10e2,
-                                             _timing_formatted=df["timing"].apply(_format_time),
+                                             _timing_formatted=_timing_formatted,
                                              tag=df['tag']))
-    line = fig.line('date', 'timing', source=plot_source, line_width=2, line_join='bevel', color='darkgreen')
+    line = fig.line('date', 'timing', source=plot_source,
+                    line_width=2, line_join='bevel', color='darkgreen')
     fill = fig.varea('date', y1=0, y2='timing', source=plot_source, level='underlay',
                      fill_alpha=0.20, fill_color='darkgreen')
     return line, fill
 
 
 def _add_crosshair(fig):
-    width = Span(dimension="width", line_dash="dashed", line_width=1, line_color='white', line_alpha=0.8)
-    height = Span(dimension="height", line_dash="dashed", line_width=1, line_color='white', line_alpha=0.8)
+    width = Span(dimension="width", line_dash="dashed", line_width=1,
+                 line_color='white', line_alpha=0.8)
+    height = Span(dimension="height", line_dash="dashed", line_width=1,
+                  line_color='white', line_alpha=0.8)
     fig.add_tools(CrosshairTool(overlay=[width, height]))
 
 
@@ -180,7 +184,7 @@ def _add_selector(fig, lines):
         _add_hover(fig, line)
 
     keys = list(lines.keys())
-    selector = Select(title="Benchmarks", options=keys, value=keys[0], css_classes=['selector'])
+    selector = Select(title="Benchmarks", options=keys, value=keys[0])
     selector.on_change('value', callback)
     return selector
 
