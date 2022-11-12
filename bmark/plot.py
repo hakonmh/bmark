@@ -12,7 +12,7 @@ from bokeh.server.server import Server
 from bokeh.transform import dodge
 
 
-def plot_log(path):
+def plot_log(path, header=''):
     """Plots timeseries chart of benchmark log(s) to see benchmark results over time.
 
     You can choose to plot either:
@@ -26,21 +26,24 @@ def plot_log(path):
     path : str
         path to logfile or directory of logfiles
     """
+    if header == '':
+        header = os.path.split(path)[-1]
+        header = header.capitalize()
+        if '.log' in header:
+            header = header.rstrip('.log')
+
     if os.path.isdir(path):
         dfs = {}
-        for bench_name in os.listdir(path):
-            header = bench_name.rstrip('.log')
-            file_path = os.path.join(path, bench_name)
+        for file_name in os.listdir(path):
+            bench_name = file_name.rstrip('.log')
+            file_path = os.path.join(path, file_name)
             data = read_log(file_path)
             df = pd.DataFrame.from_records(data[1:], columns=data[0], index='date')
             df = df.sort_index()
-            dfs[header] = df
-        plot_multiple(dfs)
+            dfs[bench_name] = df
+        plot_multiple(header, dfs)
     else:
-        if '.log' in path:
-            header = os.path.split(path)[-1].rstrip('.log')
-        else:
-            header = os.path.split(path)[-1]
+        if '.log' not in path:
             path += '.log'
         data = read_log(path)
         df = pd.DataFrame.from_records(data[1:], columns=data[0], index='date')
@@ -62,7 +65,6 @@ def read_log(path):
 
 
 def plot_single(header, df):
-    header = header.rstrip('.log')
     fig = _make_fig(header)
     line, _ = _plot_shaded_line(fig, df)
     _rescale_fig(fig, line)
@@ -71,8 +73,8 @@ def plot_single(header, df):
     plotting.show(fig)
 
 
-def plot_multiple(dfs):
-    app = _PlotMulti(dfs)
+def plot_multiple(header, dfs):
+    app = _PlotMulti(header, dfs)
     server = Server({'/': app}, num_procs=1)
     server.start()
     server.io_loop.add_callback(server.show, "/")
@@ -81,24 +83,26 @@ def plot_multiple(dfs):
 
 class _PlotMulti:
 
-    def __init__(self, dfs) -> None:
+    def __init__(self, header, dfs) -> None:
+        self.header = header
         self.dfs = dfs
 
     def __call__(self, doc):
-        keys = list(self.dfs.keys())
-        fig = _make_fig(keys[0])
+        fig = _make_fig(self.header)
         doc.theme = 'dark_minimal'
 
         lines = dict()
         for key in self.dfs:
             lines[key] = _plot_shaded_line(fig, self.dfs[key])
-        line, fill = lines[keys[0]]
+
+        key = list(self.dfs.keys())[0]
+        line, fill = lines[key]
         _set_all_lines_invisible(lines)
         _set_line_visible(line, fill)
         _rescale_fig(fig, line)
 
         _add_crosshair(fig)
-        _add_hover(fig, lines[keys[0]][0])
+        _add_hover(fig, line)
         selector = _add_selector(fig, lines)
         layout = column(fig, selector, sizing_mode='stretch_both')
 
