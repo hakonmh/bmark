@@ -7,7 +7,7 @@ with open(os.path.join(current_folder, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='bmark-py',
-    version='0.0.3',
+    version='0.0.4',
     description='Benchmarking tool',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -30,7 +30,7 @@ setup(
     packages=find_packages(exclude=['tests', 'dev']),
     install_requires=[
         'pandas',
-        'ipython'
+        'ipython',
         'prettytable>=3.5.0',
         'bokeh>=3.0.0',
     ],
